@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>David Logs</title>
+<style>
+  :root {
+    --bg: #f6f7f5;
+    --surface: #ffffff;
+    --ink: #1e2a2b;
+    --ink-soft: #5b6866;
+    --line: #dfe4e0;
+    --accent: #2f7a73;
+    --accent-soft: #e4f0ee;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .wrap {
+    max-width: 420px;
+    width: 100%;
+  }
+  h1 {
+    font-size: 22px;
+    font-weight: 700;
+    text-align: center;
+    margin: 0 0 6px 0;
+  }
+  .sub {
+    text-align: center;
+    color: var(--ink-soft);
+    font-size: 13px;
+    margin-bottom: 28px;
+  }
+  .menu {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  a.card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 18px 20px;
+    text-decoration: none;
+    color: var(--ink);
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+  }
+  a.card:active { transform: scale(0.98); }
+  .icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: var(--accent-soft);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+  .label { flex: 1; }
+  .title { font-weight: 700; font-size: 16px; }
+  .desc { font-size: 12px; color: var(--ink-soft); margin-top: 2px; }
+  .arrow { color: var(--accent); font-size: 18px; font-weight: 700; }
+  footer {
+    text-align: center;
+    color: var(--ink-soft);
+    font-size: 11px;
+    margin-top: 28px;
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>David Logs</h1>
+    <div class="sub">Personal tracking, all in one place</div>
+    <div class="menu">
+      <a class="card" href="schedule.html">
+        <div class="icon">📅</div>
+        <div class="label">
+          <div class="title">Schedule &amp; Diary</div>
+          <div class="desc">Calendar, appointments, daily notes</div>
+        </div>
+        <div class="arrow">›</div>
+      </a>
+      <a class="card" href="health.html">
+        <div class="icon">🩺</div>
+        <div class="label">
+          <div class="title">Health Log</div>
+          <div class="desc">Test results, values, photos</div>
+        </div>
+        <div class="arrow">›</div>
+      </a>
+      <a class="card" href="urine_log.html">
+        <div class="icon">💧</div>
+        <div class="label">
+          <div class="title">Urine Output Log</div>
+          <div class="desc">Frequency and volume tracking</div>
+        </div>
+        <div class="arrow">›</div>
+      </a>
+    </div>
+    <footer>Synced with Google Sheets</footer>
+  </div>
+</body>
+</html>

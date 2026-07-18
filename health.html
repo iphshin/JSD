@@ -1,0 +1,596 @@
+<div id="app-root"></div>
+<style>
+  :root {
+    --bg: #f6f7f5;
+    --surface: #ffffff;
+    --ink: #1e2a2b;
+    --ink-soft: #5b6866;
+    --line: #dfe4e0;
+    --accent: #2f7a73;
+    --accent-soft: #e4f0ee;
+    --amber: #b8763a;
+    --danger: #b1493a;
+    --danger-soft: #f7e9e6;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  #app-root {
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100%;
+    padding: 20px 16px 40px;
+    max-width: 560px;
+    margin: 0 auto;
+  }
+
+  .header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 18px;
+  }
+
+  .header h1 {
+    font-size: 19px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin: 0;
+  }
+
+  .header .drop { color: var(--accent); }
+
+  .sync-status {
+    font-size: 11px;
+    color: var(--ink-soft);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .sync-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+  .sync-dot.error { background: var(--danger); }
+  .sync-dot.busy { background: var(--amber); }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 18px;
+    margin-bottom: 16px;
+  }
+
+  .card h2 {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ink-soft);
+    margin: 0 0 14px 0;
+    font-weight: 700;
+  }
+
+  .field-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .field {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .field label {
+    font-size: 12px;
+    color: var(--ink-soft);
+    font-weight: 600;
+  }
+
+  input[type="date"],
+  input[type="time"],
+  input[type="text"],
+  textarea {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 9px 10px;
+    font-size: 15px;
+    background: #fbfbfa;
+    color: var(--ink);
+    width: 100%;
+    font-family: inherit;
+  }
+
+  textarea { resize: vertical; min-height: 60px; }
+
+  input:focus, textarea:focus {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+  }
+
+  input:disabled, textarea:disabled { opacity: 0.6; }
+
+  .file-input-wrap {
+    border: 1px dashed var(--line);
+    border-radius: 8px;
+    padding: 10px;
+    background: #fbfbfa;
+    font-size: 13px;
+    color: var(--ink-soft);
+  }
+
+  .btn-row { display: flex; gap: 8px; margin-top: 4px; }
+
+  button.primary {
+    flex: 1;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 9px;
+    padding: 11px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  button.primary:disabled { opacity: 0.5; cursor: default; }
+
+  button.ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    padding: 11px 14px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  button.ghost:disabled { opacity: 0.5; cursor: default; }
+
+  .entry-list { display: flex; flex-direction: column; gap: 10px; }
+
+  .entry-card {
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: #fbfbfa;
+    padding: 12px;
+  }
+
+  .entry-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+
+  .entry-title {
+    font-weight: 700;
+    font-size: 14px;
+  }
+
+  .entry-sub {
+    font-size: 12px;
+    color: var(--ink-soft);
+  }
+
+  .entry-value {
+    font-family: "SF Mono", "Menlo", monospace;
+    font-weight: 700;
+    font-size: 15px;
+  }
+
+  .entry-memo {
+    font-size: 13px;
+    color: var(--ink-soft);
+    margin-top: 4px;
+  }
+
+  .icon-btn {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 12px;
+    padding: 4px 7px;
+    border-radius: 6px;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+
+  .icon-btn.edit { color: var(--accent); }
+  .icon-btn.delete { color: var(--danger); }
+  .icon-btn:disabled { opacity: 0.5; cursor: default; }
+
+  .thumb-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+  }
+
+  .thumb-wrap {
+    position: relative;
+    width: 64px;
+    height: 64px;
+  }
+
+  .thumb-wrap img {
+    width: 64px;
+    height: 64px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    cursor: pointer;
+  }
+
+  .thumb-remove {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    background: var(--danger);
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    font-size: 11px;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .empty-state {
+    text-align: center;
+    color: var(--ink-soft);
+    font-size: 13px;
+    padding: 24px 0;
+  }
+
+  .banner {
+    font-size: 12px;
+    color: var(--accent);
+    background: var(--accent-soft);
+    border-radius: 8px;
+    padding: 8px 10px;
+    margin-bottom: 14px;
+    display: none;
+  }
+
+  .banner.show { display: block; }
+  .banner.error { color: var(--danger); background: var(--danger-soft); }
+
+  .loading {
+    text-align: center;
+    color: var(--ink-soft);
+    padding: 30px 0;
+    font-size: 13px;
+  }
+
+  .lightbox {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    cursor: zoom-out;
+  }
+
+  .lightbox img {
+    max-width: 92vw;
+    max-height: 92vh;
+    border-radius: 8px;
+  }
+</style>
+
+<script type="text/babel" data-presets="react">
+const { useState, useEffect, useCallback } = React;
+
+// Apps Script web app deployed on the "david health" sheet, tab "Sheet1"
+// Columns: Date | Time | Test | Value | Memo | Images (comma-separated Drive URLs)
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwxmZW4YCgtGylqdmg33V72FHBCL3X2EMHupJABHeb07Fkvj4GsNvsQRkpOw3ER3rMh/exec';
+
+const MAX_IMAGE_DIM = 1280;
+const JPEG_QUALITY = 0.8;
+
+function pad(n) { return String(n).padStart(2, '0'); }
+function todayStr() {
+  const d = new Date();
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+function nowTimeStr() {
+  const d = new Date();
+  return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+// Resize + compress an image file client-side before sending, to keep uploads fast.
+function fileToCompressedBase64(file) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const reader = new FileReader();
+    reader.onload = (e) => { img.src = e.target.result; };
+    reader.onerror = reject;
+    img.onload = () => {
+      let { width, height } = img;
+      if (width > MAX_IMAGE_DIM || height > MAX_IMAGE_DIM) {
+        const scale = MAX_IMAGE_DIM / Math.max(width, height);
+        width = Math.round(width * scale);
+        height = Math.round(height * scale);
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+      const dataUrl = canvas.toDataURL('image/jpeg', JPEG_QUALITY);
+      resolve({
+        data: dataUrl.split(',')[1],
+        mimeType: 'image/jpeg',
+        name: (file.name || 'photo').replace(/\.[^.]+$/, '') + '.jpg',
+      });
+    };
+    img.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+async function postAction(payload) {
+  const res = await fetch(APPS_SCRIPT_URL, {
+    method: 'POST',
+    cache: 'no-store',
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) throw new Error('request failed (' + res.status + ')');
+  const data = await res.json();
+  if (data.ok === false) throw new Error(data.error || 'request failed');
+  return data;
+}
+
+async function fetchAllRows() {
+  const data = await postAction({ action: 'list' });
+  if (!data.rows) throw new Error('no rows in response: ' + JSON.stringify(data).slice(0, 200));
+  return data.rows;
+}
+
+function App() {
+  const [loaded, setLoaded] = useState(false);
+  const [rows, setRows] = useState([]);
+  const [syncState, setSyncState] = useState('idle');
+  const [banner, setBanner] = useState('');
+  const [bannerErr, setBannerErr] = useState(false);
+  const [lightboxUrl, setLightboxUrl] = useState(null);
+
+  const [editingId, setEditingId] = useState(null);
+  const [formDate, setFormDate] = useState(todayStr());
+  const [formTime, setFormTime] = useState(nowTimeStr());
+  const [formTest, setFormTest] = useState('');
+  const [formValue, setFormValue] = useState('');
+  const [formMemo, setFormMemo] = useState('');
+  const [pendingFiles, setPendingFiles] = useState([]);
+  const [saving, setSaving] = useState(false);
+
+  function showBanner(msg, isErr, ms) {
+    setBanner(msg);
+    setBannerErr(!!isErr);
+    setTimeout(() => setBanner(''), ms || 2500);
+  }
+
+  const reload = useCallback(async () => {
+    setSyncState('busy');
+    try {
+      const list = await fetchAllRows();
+      setRows(list);
+      setSyncState('idle');
+    } catch (e) {
+      setSyncState('error');
+      showBanner('Load error: ' + (e && e.message ? e.message : String(e)), true, 999999);
+    }
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      await reload();
+      setLoaded(true);
+    })();
+  }, [reload]);
+
+  function resetForm() {
+    setEditingId(null);
+    setFormDate(todayStr());
+    setFormTime(nowTimeStr());
+    setFormTest('');
+    setFormValue('');
+    setFormMemo('');
+    setPendingFiles([]);
+  }
+
+  async function handleSave() {
+    if (!formDate || !formTest.trim() || !formValue.trim()) {
+      showBanner('Please fill in Date, Test, and Value.', true, 2000);
+      return;
+    }
+    setSaving(true);
+    try {
+      const images = await Promise.all(pendingFiles.map(fileToCompressedBase64));
+      if (editingId) {
+        await postAction({
+          action: 'updateFields', row: editingId,
+          date: formDate, time: formTime, test: formTest.trim(), value: formValue.trim(), memo: formMemo.trim(),
+        });
+        if (images.length > 0) {
+          await postAction({ action: 'addImages', row: editingId, images });
+        }
+        showBanner('Record updated.', false, 1800);
+      } else {
+        await postAction({
+          action: 'append',
+          date: formDate, time: formTime, test: formTest.trim(), value: formValue.trim(), memo: formMemo.trim(),
+          images,
+        });
+        showBanner('Record added.', false, 1800);
+      }
+      await reload();
+      resetForm();
+    } catch (e) {
+      showBanner('Save error: ' + e.message, true, 3000);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  function handleEdit(entry) {
+    setEditingId(entry.row);
+    setFormDate(entry.date);
+    setFormTime(entry.time || nowTimeStr());
+    setFormTest(entry.test);
+    setFormValue(entry.value);
+    setFormMemo(entry.memo || '');
+    setPendingFiles([]);
+  }
+
+  async function handleDelete(row) {
+    setSyncState('busy');
+    try {
+      await postAction({ action: 'delete', row });
+      await reload();
+      showBanner('Deleted.', false, 1500);
+    } catch (e) {
+      setSyncState('error');
+      showBanner('Delete error: ' + e.message, true, 2500);
+    }
+  }
+
+  async function handleRemoveImage(row, url) {
+    try {
+      await postAction({ action: 'removeImage', row, url });
+      await reload();
+    } catch (e) {
+      showBanner('Delete error: ' + e.message, true, 2500);
+    }
+  }
+
+  const sortedRows = [...rows].sort((a, b) => {
+    const da = a.date + ' ' + (a.time || '');
+    const db = b.date + ' ' + (b.time || '');
+    return db.localeCompare(da); // newest first
+  });
+
+  if (!loaded) {
+    return <div className="loading">Loading from sheet…</div>;
+  }
+
+  return (
+    <div>
+      {lightboxUrl && (
+        <div className="lightbox" onClick={() => setLightboxUrl(null)}>
+          <img src={lightboxUrl} />
+        </div>
+      )}
+
+      <div className="header">
+        <h1><span className="drop">●</span> Health Log</h1>
+        <div className="sync-status">
+          <span className={`sync-dot ${syncState === 'error' ? 'error' : syncState === 'busy' ? 'busy' : ''}`}></span>
+          {syncState === 'error' ? 'Connection error' : syncState === 'busy' ? 'Syncing' : 'Synced'}
+        </div>
+      </div>
+
+      <div className={`banner ${banner ? 'show' : ''} ${bannerErr ? 'error' : ''}`}>{banner}</div>
+
+      <div className="card">
+        <h2>{editingId ? 'Edit Record' : 'New Record'}</h2>
+        <div className="field-row">
+          <div className="field">
+            <label>Date</label>
+            <input type="date" value={formDate} disabled={saving} onChange={e => setFormDate(e.target.value)} />
+          </div>
+          <div className="field">
+            <label>Time</label>
+            <input type="time" value={formTime} disabled={saving} onChange={e => setFormTime(e.target.value)} />
+          </div>
+        </div>
+        <div className="field-row">
+          <div className="field">
+            <label>Test</label>
+            <input type="text" placeholder="e.g. Blood pressure" value={formTest} disabled={saving} onChange={e => setFormTest(e.target.value)} />
+          </div>
+          <div className="field">
+            <label>Value</label>
+            <input type="text" placeholder="e.g. 120/80" value={formValue} disabled={saving} onChange={e => setFormValue(e.target.value)} />
+          </div>
+        </div>
+        <div className="field-row">
+          <div className="field">
+            <label>Memo (optional)</label>
+            <textarea placeholder="Notes, medication, doctor's comments…" value={formMemo} disabled={saving} onChange={e => setFormMemo(e.target.value)} />
+          </div>
+        </div>
+        <div className="field-row">
+          <div className="field">
+            <label>Photos (optional, multiple allowed)</label>
+            <div className="file-input-wrap">
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                disabled={saving}
+                onChange={e => setPendingFiles(Array.from(e.target.files || []))}
+              />
+              {pendingFiles.length > 0 && <div style={{marginTop: '6px'}}>{pendingFiles.length} file(s) selected</div>}
+            </div>
+          </div>
+        </div>
+        <div className="btn-row">
+          <button className="primary" disabled={saving} onClick={handleSave}>
+            {saving ? 'Saving…' : (editingId ? 'Update Record' : 'Save Record')}
+          </button>
+          {editingId && <button className="ghost" disabled={saving} onClick={resetForm}>Cancel</button>}
+        </div>
+      </div>
+
+      <div className="card">
+        <h2>History</h2>
+        {sortedRows.length === 0 ? (
+          <div className="empty-state">No records yet.</div>
+        ) : (
+          <div className="entry-list">
+            {sortedRows.map(r => (
+              <div className="entry-card" key={r.row}>
+                <div className="entry-top">
+                  <div>
+                    <div className="entry-title">{r.test}</div>
+                    <div className="entry-sub">{r.date}{r.time ? ` · ${r.time}` : ''}</div>
+                  </div>
+                  <div>
+                    <button className="icon-btn edit" onClick={() => handleEdit(r)}>Edit</button>
+                    <button className="icon-btn delete" onClick={() => handleDelete(r.row)}>Delete</button>
+                  </div>
+                </div>
+                <div className="entry-value">{r.value}</div>
+                {r.memo && <div className="entry-memo">{r.memo}</div>}
+                {r.images && r.images.length > 0 && (
+                  <div className="thumb-row">
+                    {r.images.map((url, i) => (
+                      <div className="thumb-wrap" key={i}>
+                        <img src={url} onClick={() => setLightboxUrl(url)} />
+                        <button className="thumb-remove" onClick={() => handleRemoveImage(r.row, url)}>×</button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('app-root')).render(<App />);
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>

@@ -33,13 +33,6 @@
     margin: 0 auto;
   }
 
-  .header {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    margin-bottom: 18px;
-  }
-
   .home-link {
     display: inline-block;
     font-size: 12px;
@@ -48,8 +41,14 @@
     text-decoration: none;
     margin-bottom: 10px;
   }
-
   .home-link:active { opacity: 0.7; }
+
+  .header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 18px;
+  }
 
   .header h1 {
     font-size: 19px;
@@ -71,6 +70,32 @@
   .sync-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
   .sync-dot.error { background: var(--danger); }
   .sync-dot.busy { background: var(--amber); }
+
+  .tabs {
+    display: flex;
+    gap: 6px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 4px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+
+  .tab-btn {
+    flex: 1;
+    min-width: 70px;
+    border: none;
+    background: transparent;
+    padding: 9px 4px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ink-soft);
+    border-radius: 7px;
+    cursor: pointer;
+  }
+
+  .tab-btn.active { background: var(--accent); color: #fff; }
 
   .card {
     background: var(--surface);
@@ -100,6 +125,7 @@
     display: flex;
     flex-direction: column;
     gap: 5px;
+    min-width: 0;
   }
 
   .field label {
@@ -108,9 +134,15 @@
     font-weight: 600;
   }
 
+  .sub-field-row {
+    display: flex;
+    gap: 6px;
+  }
+
   input[type="date"],
   input[type="time"],
   input[type="text"],
+  input[type="number"],
   textarea {
     border: 1px solid var(--line);
     border-radius: 8px;
@@ -169,51 +201,12 @@
 
   button.ghost:disabled { opacity: 0.5; cursor: default; }
 
-  .entry-list { display: flex; flex-direction: column; gap: 10px; }
-
-  .entry-card {
-    border: 1px solid var(--line);
-    border-radius: 10px;
-    background: #fbfbfa;
-    padding: 12px;
-  }
-
-  .entry-top {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 8px;
-    margin-bottom: 6px;
-  }
-
-  .entry-title {
-    font-weight: 700;
-    font-size: 14px;
-  }
-
-  .entry-sub {
-    font-size: 12px;
-    color: var(--ink-soft);
-  }
-
-  .entry-value {
-    font-family: "SF Mono", "Menlo", monospace;
-    font-weight: 700;
-    font-size: 15px;
-  }
-
-  .entry-memo {
-    font-size: 13px;
-    color: var(--ink-soft);
-    margin-top: 4px;
-  }
-
   .icon-btn {
     border: none;
     background: transparent;
     cursor: pointer;
     font-size: 12px;
-    padding: 4px 7px;
+    padding: 4px 6px;
     border-radius: 6px;
     font-weight: 600;
     flex-shrink: 0;
@@ -221,55 +214,6 @@
 
   .icon-btn.edit { color: var(--accent); }
   .icon-btn.delete { color: var(--danger); }
-  .icon-btn:disabled { opacity: 0.5; cursor: default; }
-
-  .thumb-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-top: 8px;
-  }
-
-  .thumb-wrap {
-    width: 64px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 3px;
-  }
-
-  .thumb-wrap img {
-    width: 64px;
-    height: 64px;
-    object-fit: cover;
-    border-radius: 8px;
-    border: 1px solid var(--line);
-    cursor: pointer;
-  }
-
-  .thumb-failed {
-    display: none;
-    width: 64px;
-    height: 64px;
-    border-radius: 8px;
-    border: 1px dashed var(--line);
-    background: #f0f0ee;
-    color: var(--ink-soft);
-    font-size: 10px;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-  }
-
-  .thumb-remove {
-    background: none;
-    border: none;
-    color: var(--ink-soft);
-    font-size: 10px;
-    padding: 1px 4px;
-    cursor: pointer;
-    text-decoration: underline;
-  }
 
   .empty-state {
     text-align: center;
@@ -308,19 +252,94 @@
     z-index: 1000;
     cursor: zoom-out;
   }
+  .lightbox img { max-width: 92vw; max-height: 92vh; border-radius: 8px; }
 
-  .lightbox img {
-    max-width: 92vw;
-    max-height: 92vh;
-    border-radius: 8px;
+  .history-table-wrap {
+    overflow-x: auto;
   }
+
+  .entry-list { display: flex; flex-direction: column; gap: 10px; min-width: 620px; }
+
+  .history-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 12px 6px 12px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--ink-soft);
+    min-width: 620px;
+  }
+
+  .history-row {
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: #fbfbfa;
+    padding: 10px 12px;
+  }
+
+  .history-line { display: flex; align-items: center; gap: 8px; }
+
+  .col-date { flex-shrink: 0; min-width: 68px; font-size: 12px; color: var(--ink-soft); }
+  .col-time { flex-shrink: 0; min-width: 40px; font-size: 12px; color: var(--ink-soft); }
+  .col-bp { flex-shrink: 0; min-width: 60px; font-family: "SF Mono", "Menlo", monospace; font-weight: 700; font-size: 13px; }
+  .col-hba1c { flex-shrink: 0; min-width: 60px; font-family: "SF Mono", "Menlo", monospace; font-weight: 700; font-size: 13px; }
+  .col-image { flex-shrink: 0; width: 60px; }
+  .col-type { flex-shrink: 0; min-width: 80px; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .col-results { flex-shrink: 0; min-width: 100px; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .col-memo { flex: 1; min-width: 80px; font-size: 12px; color: var(--ink-soft); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  .history-image-badge {
+    width: 56px;
+    border: 1px solid var(--line);
+    background: var(--accent-soft);
+    color: var(--accent);
+    border-radius: 6px;
+    padding: 3px 4px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .history-image-badge:disabled {
+    background: transparent; color: var(--ink-soft); border-color: transparent; cursor: default; font-weight: 400;
+  }
+
+  .thumb-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .thumb-wrap { width: 64px; display: flex; flex-direction: column; align-items: center; gap: 3px; }
+  .thumb-wrap img {
+    width: 64px; height: 64px; object-fit: cover; border-radius: 8px; border: 1px solid var(--line); cursor: pointer;
+  }
+  .thumb-failed {
+    display: none; width: 64px; height: 64px; border-radius: 8px; border: 1px dashed var(--line);
+    background: #f0f0ee; color: var(--ink-soft); font-size: 10px; align-items: center; justify-content: center; text-align: center;
+  }
+  .thumb-remove {
+    background: none; border: none; color: var(--ink-soft); font-size: 10px; padding: 1px 4px; cursor: pointer; text-decoration: underline;
+  }
+
+  .period-tabs { display: flex; gap: 6px; margin-bottom: 14px; }
+  .period-btn {
+    flex: 1; border: 1px solid var(--line); background: var(--surface); color: var(--ink-soft);
+    border-radius: 8px; padding: 8px; font-size: 13px; font-weight: 600; cursor: pointer;
+  }
+  .period-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+  .trend-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .trend-table th {
+    text-align: left; color: var(--ink-soft); font-weight: 600; font-size: 11px;
+    text-transform: uppercase; letter-spacing: 0.04em; padding: 6px 4px; border-bottom: 1px solid var(--line);
+  }
+  .trend-table td { padding: 8px 4px; border-bottom: 1px solid var(--line); }
+  .trend-table td.num { font-family: "SF Mono", "Menlo", monospace; text-align: right; }
 </style>
 
 <script type="text/babel" data-presets="react">
 const { useState, useEffect, useCallback } = React;
 
 // Apps Script web app deployed on the "david health" sheet, tab "Sheet1"
-// Columns: Date | Time | Test | Value | Memo | Images (comma-separated Drive URLs)
+// Columns: Date | Time | Sys | Dia | HbA1c | Type | Results | Memo | Images
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwxmZW4YCgtGylqdmg33V72FHBCL3X2EMHupJABHeb07Fkvj4GsNvsQRkpOw3ER3rMh/exec';
 
 const MAX_IMAGE_DIM = 1280;
@@ -336,7 +355,6 @@ function nowTimeStr() {
   return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
-// Resize + compress an image file client-side before sending, to keep uploads fast.
 function fileToCompressedBase64(file) {
   return new Promise((resolve, reject) => {
     const img = new Image();
@@ -384,6 +402,16 @@ async function fetchAllRows() {
   return data.rows;
 }
 
+function weekLabel(dateStr) {
+  const d = new Date(dateStr + 'T00:00:00');
+  const day = (d.getDay() + 6) % 7; // Monday=0
+  const monday = new Date(d);
+  monday.setDate(d.getDate() - day);
+  return `${monday.getFullYear()}-${pad(monday.getMonth() + 1)}-${pad(monday.getDate())}`;
+}
+function monthLabel(dateStr) { return dateStr.slice(0, 7); }
+function yearLabel(dateStr) { return dateStr.slice(0, 4); }
+
 function App() {
   const [loaded, setLoaded] = useState(false);
   const [rows, setRows] = useState([]);
@@ -391,12 +419,18 @@ function App() {
   const [banner, setBanner] = useState('');
   const [bannerErr, setBannerErr] = useState(false);
   const [lightboxUrl, setLightboxUrl] = useState(null);
+  const [tab, setTab] = useState('add');
+  const [expandedRows, setExpandedRows] = useState(() => new Set());
+  const [bpPeriod, setBpPeriod] = useState('weekly');
 
   const [editingId, setEditingId] = useState(null);
   const [formDate, setFormDate] = useState(todayStr());
   const [formTime, setFormTime] = useState(nowTimeStr());
-  const [formTest, setFormTest] = useState('');
-  const [formValue, setFormValue] = useState('');
+  const [formSys, setFormSys] = useState('');
+  const [formDia, setFormDia] = useState('');
+  const [formHbA1c, setFormHbA1c] = useState('');
+  const [formType, setFormType] = useState('Diagnosis');
+  const [formResults, setFormResults] = useState('Prescription');
   const [formMemo, setFormMemo] = useState('');
   const [pendingFiles, setPendingFiles] = useState([]);
   const [saving, setSaving] = useState(false);
@@ -426,39 +460,48 @@ function App() {
     })();
   }, [reload]);
 
+  function toggleImages(row) {
+    setExpandedRows(prev => {
+      const next = new Set(prev);
+      if (next.has(row)) next.delete(row); else next.add(row);
+      return next;
+    });
+  }
+
   function resetForm() {
     setEditingId(null);
     setFormDate(todayStr());
     setFormTime(nowTimeStr());
-    setFormTest('');
-    setFormValue('');
+    setFormSys('');
+    setFormDia('');
+    setFormHbA1c('');
+    setFormType('Diagnosis');
+    setFormResults('Prescription');
     setFormMemo('');
     setPendingFiles([]);
   }
 
   async function handleSave() {
-    if (!formDate || !formTest.trim() || !formValue.trim()) {
-      showBanner('Please fill in Date, Test, and Value.', true, 2000);
+    if (!formDate) {
+      showBanner('Please fill in Date.', true, 2000);
       return;
     }
     setSaving(true);
     try {
       const images = await Promise.all(pendingFiles.map(fileToCompressedBase64));
+      const payloadFields = {
+        date: formDate, time: formTime,
+        sys: formSys, dia: formDia, hba1c: formHbA1c,
+        type: formType.trim(), results: formResults.trim(), memo: formMemo.trim(),
+      };
       if (editingId) {
-        await postAction({
-          action: 'updateFields', row: editingId,
-          date: formDate, time: formTime, test: formTest.trim(), value: formValue.trim(), memo: formMemo.trim(),
-        });
+        await postAction({ action: 'updateFields', row: editingId, ...payloadFields });
         if (images.length > 0) {
           await postAction({ action: 'addImages', row: editingId, images });
         }
         showBanner('Record updated.', false, 1800);
       } else {
-        await postAction({
-          action: 'append',
-          date: formDate, time: formTime, test: formTest.trim(), value: formValue.trim(), memo: formMemo.trim(),
-          images,
-        });
+        await postAction({ action: 'append', ...payloadFields, images });
         showBanner('Record added.', false, 1800);
       }
       await reload();
@@ -474,10 +517,14 @@ function App() {
     setEditingId(entry.row);
     setFormDate(entry.date);
     setFormTime(entry.time || nowTimeStr());
-    setFormTest(entry.test);
-    setFormValue(entry.value);
+    setFormSys(entry.sys || '');
+    setFormDia(entry.dia || '');
+    setFormHbA1c(entry.hba1c || '');
+    setFormType(entry.type || '');
+    setFormResults(entry.results || '');
     setFormMemo(entry.memo || '');
     setPendingFiles([]);
+    setTab('add');
   }
 
   async function handleDelete(row) {
@@ -504,8 +551,34 @@ function App() {
   const sortedRows = [...rows].sort((a, b) => {
     const da = a.date + ' ' + (a.time || '');
     const db = b.date + ' ' + (b.time || '');
-    return db.localeCompare(da); // newest first
+    return db.localeCompare(da);
   });
+
+  // ---- BP Trends ----
+  const bpRows = rows.filter(r => r.sys !== '' && r.dia !== '' && !isNaN(Number(r.sys)) && !isNaN(Number(r.dia)));
+  const bpKeyFn = bpPeriod === 'weekly' ? weekLabel : bpPeriod === 'monthly' ? monthLabel : yearLabel;
+  const bpGroups = {};
+  bpRows.forEach(r => {
+    const key = bpKeyFn(r.date);
+    if (!bpGroups[key]) bpGroups[key] = { sys: [], dia: [] };
+    bpGroups[key].sys.push(Number(r.sys));
+    bpGroups[key].dia.push(Number(r.dia));
+  });
+  const bpSummary = Object.keys(bpGroups).sort((a, b) => b.localeCompare(a)).map(key => {
+    const g = bpGroups[key];
+    const avg = arr => Math.round(arr.reduce((s, v) => s + v, 0) / arr.length);
+    return {
+      key,
+      avgSys: avg(g.sys), avgDia: avg(g.dia),
+      maxSys: Math.max(...g.sys), maxDia: Math.max(...g.dia),
+      minSys: Math.min(...g.sys), minDia: Math.min(...g.dia),
+    };
+  });
+
+  // ---- HbA1C Log ----
+  const hba1cRows = rows
+    .filter(r => r.hba1c !== '' && !isNaN(Number(r.hba1c)))
+    .sort((a, b) => (b.date + (b.time || '')).localeCompare(a.date + (a.time || '')));
 
   if (!loaded) {
     return <div className="loading">Loading from sheet…</div>;
@@ -530,6 +603,14 @@ function App() {
 
       <div className={`banner ${banner ? 'show' : ''} ${bannerErr ? 'error' : ''}`}>{banner}</div>
 
+      <div className="tabs">
+        <button className={`tab-btn ${tab === 'add' ? 'active' : ''}`} onClick={() => setTab('add')}>New Record</button>
+        <button className={`tab-btn ${tab === 'history' ? 'active' : ''}`} onClick={() => setTab('history')}>History</button>
+        <button className={`tab-btn ${tab === 'bp' ? 'active' : ''}`} onClick={() => setTab('bp')}>BP Trends</button>
+        <button className={`tab-btn ${tab === 'a1c' ? 'active' : ''}`} onClick={() => setTab('a1c')}>HbA1C Log</button>
+      </div>
+
+      {tab === 'add' && (
       <div className="card">
         <h2>{editingId ? 'Edit Record' : 'New Record'}</h2>
         <div className="field-row">
@@ -544,23 +625,36 @@ function App() {
         </div>
         <div className="field-row">
           <div className="field">
-            <label>Test</label>
-            <input type="text" placeholder="e.g. Blood pressure" value={formTest} disabled={saving} onChange={e => setFormTest(e.target.value)} />
+            <label>BP (mmHg)</label>
+            <div className="sub-field-row">
+              <input type="number" placeholder="Sys" value={formSys} disabled={saving} onChange={e => setFormSys(e.target.value)} />
+              <input type="number" placeholder="Dia" value={formDia} disabled={saving} onChange={e => setFormDia(e.target.value)} />
+            </div>
           </div>
           <div className="field">
-            <label>Value</label>
-            <input type="text" placeholder="e.g. 120/80" value={formValue} disabled={saving} onChange={e => setFormValue(e.target.value)} />
+            <label>HbA1C (mg/dL)</label>
+            <input type="number" placeholder="e.g. 6.1" value={formHbA1c} disabled={saving} onChange={e => setFormHbA1c(e.target.value)} />
+          </div>
+        </div>
+        <div className="field-row">
+          <div className="field">
+            <label>Type</label>
+            <input type="text" value={formType} disabled={saving} onChange={e => setFormType(e.target.value)} />
+          </div>
+          <div className="field">
+            <label>Results</label>
+            <input type="text" value={formResults} disabled={saving} onChange={e => setFormResults(e.target.value)} />
           </div>
         </div>
         <div className="field-row">
           <div className="field">
             <label>Memo (optional)</label>
-            <textarea placeholder="Notes, medication, doctor's comments…" value={formMemo} disabled={saving} onChange={e => setFormMemo(e.target.value)} />
+            <textarea placeholder="Notes…" value={formMemo} disabled={saving} onChange={e => setFormMemo(e.target.value)} />
           </div>
         </div>
         <div className="field-row">
           <div className="field">
-            <label>Photos (optional, multiple allowed)</label>
+            <label>Image (optional, multiple allowed)</label>
             <div className="file-input-wrap">
               <input
                 type="file"
@@ -580,58 +674,142 @@ function App() {
           {editingId && <button className="ghost" disabled={saving} onClick={resetForm}>Cancel</button>}
         </div>
       </div>
+      )}
 
+      {tab === 'history' && (
       <div className="card">
         <h2>History</h2>
         {sortedRows.length === 0 ? (
           <div className="empty-state">No records yet.</div>
         ) : (
-          <div className="entry-list">
-            {sortedRows.map(r => (
-              <div className="entry-card" key={r.row}>
-                <div className="entry-top">
-                  <div>
-                    <div className="entry-title">{r.test}</div>
-                    <div className="entry-sub">{r.date}{r.time ? ` · ${r.time}` : ''}</div>
-                  </div>
-                  <div>
+          <div className="history-table-wrap">
+            <div className="history-header">
+              <span className="col-date">Date</span>
+              <span className="col-time">Time</span>
+              <span className="col-bp">BP</span>
+              <span className="col-hba1c">HbA1C</span>
+              <span className="col-image" style={{textAlign: 'center'}}>Image</span>
+              <span className="col-type">Type</span>
+              <span className="col-results">Results</span>
+              <span className="col-memo">Memo</span>
+            </div>
+            <div className="entry-list">
+              {sortedRows.map(r => (
+                <div className="history-row" key={r.row}>
+                  <div className="history-line">
+                    <span className="col-date">{r.date}</span>
+                    <span className="col-time">{r.time}</span>
+                    <span className="col-bp">{r.sys && r.dia ? `${r.sys}/${r.dia}` : '-'}</span>
+                    <span className="col-hba1c">{r.hba1c || '-'}</span>
+                    <span className="col-image">
+                      <button
+                        className="history-image-badge"
+                        disabled={!r.images || r.images.length === 0}
+                        onClick={() => toggleImages(r.row)}
+                      >
+                        {r.images && r.images.length > 0 ? `📷 ${r.images.length}` : '—'}
+                      </button>
+                    </span>
+                    <span className="col-type">{r.type}</span>
+                    <span className="col-results">{r.results}</span>
+                    <span className="col-memo">{r.memo}</span>
                     <button className="icon-btn edit" onClick={() => handleEdit(r)}>Edit</button>
                     <button className="icon-btn delete" onClick={() => handleDelete(r.row)}>Delete</button>
                   </div>
+                  {expandedRows.has(r.row) && r.images && r.images.length > 0 && (
+                    <div className="thumb-row">
+                      {r.images.map((url, i) => (
+                        <div className="thumb-wrap" key={i}>
+                          <img
+                            src={url}
+                            loading="lazy"
+                            onClick={() => setLightboxUrl(url)}
+                            onError={(e) => {
+                              const img = e.target;
+                              const tries = Number(img.dataset.retries || 0);
+                              if (tries < 3) {
+                                img.dataset.retries = tries + 1;
+                                setTimeout(() => { img.src = url + '&r=' + Date.now(); }, 700 * (tries + 1));
+                              } else {
+                                img.style.display = 'none';
+                                img.nextElementSibling && (img.nextElementSibling.style.display = 'flex');
+                              }
+                            }}
+                          />
+                          <div className="thumb-failed">Can't load</div>
+                          <button className="thumb-remove" onClick={() => { if (window.confirm('Remove this photo from the record?')) handleRemoveImage(r.row, url); }}>Remove</button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
-                <div className="entry-value">{r.value}</div>
-                {r.memo && <div className="entry-memo">{r.memo}</div>}
-                {r.images && r.images.length > 0 && (
-                  <div className="thumb-row">
-                    {r.images.map((url, i) => (
-                      <div className="thumb-wrap" key={i}>
-                        <img
-                          src={url}
-                          loading="lazy"
-                          onClick={() => setLightboxUrl(url)}
-                          onError={(e) => {
-                            const img = e.target;
-                            const tries = Number(img.dataset.retries || 0);
-                            if (tries < 3) {
-                              img.dataset.retries = tries + 1;
-                              setTimeout(() => { img.src = url + '&r=' + Date.now(); }, 700 * (tries + 1));
-                            } else {
-                              img.style.display = 'none';
-                              img.nextElementSibling && (img.nextElementSibling.style.display = 'flex');
-                            }
-                          }}
-                        />
-                        <div className="thumb-failed">Can't load</div>
-                        <button className="thumb-remove" onClick={() => { if (window.confirm('Remove this photo from the record?')) handleRemoveImage(r.row, url); }}>Remove</button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         )}
       </div>
+      )}
+
+      {tab === 'bp' && (
+      <div className="card">
+        <h2>Blood Pressure Trends</h2>
+        <div className="period-tabs">
+          <button className={`period-btn ${bpPeriod === 'weekly' ? 'active' : ''}`} onClick={() => setBpPeriod('weekly')}>Weekly</button>
+          <button className={`period-btn ${bpPeriod === 'monthly' ? 'active' : ''}`} onClick={() => setBpPeriod('monthly')}>Monthly</button>
+          <button className={`period-btn ${bpPeriod === 'yearly' ? 'active' : ''}`} onClick={() => setBpPeriod('yearly')}>Yearly</button>
+        </div>
+        {bpSummary.length === 0 ? (
+          <div className="empty-state">No BP records yet.</div>
+        ) : (
+          <table className="trend-table">
+            <thead>
+              <tr>
+                <th>{bpPeriod === 'weekly' ? 'Week of' : bpPeriod === 'monthly' ? 'Month' : 'Year'}</th>
+                <th style={{textAlign: 'right'}}>Avg</th>
+                <th style={{textAlign: 'right'}}>Max</th>
+                <th style={{textAlign: 'right'}}>Min</th>
+              </tr>
+            </thead>
+            <tbody>
+              {bpSummary.map(s => (
+                <tr key={s.key}>
+                  <td>{s.key}</td>
+                  <td className="num">{s.avgSys}/{s.avgDia}</td>
+                  <td className="num">{s.maxSys}/{s.maxDia}</td>
+                  <td className="num">{s.minSys}/{s.minDia}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+      )}
+
+      {tab === 'a1c' && (
+      <div className="card">
+        <h2>HbA1C Log</h2>
+        {hba1cRows.length === 0 ? (
+          <div className="empty-state">No HbA1C records yet.</div>
+        ) : (
+          <table className="trend-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th style={{textAlign: 'right'}}>HbA1C (mg/dL)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {hba1cRows.map(r => (
+                <tr key={r.row}>
+                  <td>{r.date}{r.time ? ` · ${r.time}` : ''}</td>
+                  <td className="num">{r.hba1c}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+      )}
     </div>
   );
 }

@@ -32,6 +32,17 @@
     margin-bottom: 18px;
   }
 
+  .home-link {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent);
+    text-decoration: none;
+    margin-bottom: 10px;
+  }
+
+  .home-link:active { opacity: 0.7; }
+
   .header h1 {
     font-size: 19px;
     font-weight: 700;
@@ -489,6 +500,7 @@ function App() {
         </div>
       )}
 
+      <a href="index.html" className="home-link">‹ Home</a>
       <div className="header">
         <h1><span className="drop">●</span> Health Log</h1>
         <div className="sync-status">

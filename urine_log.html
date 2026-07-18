@@ -32,6 +32,17 @@
     margin-bottom: 18px;
   }
 
+  .home-link {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent);
+    text-decoration: none;
+    margin-bottom: 10px;
+  }
+
+  .home-link:active { opacity: 0.7; }
+
   .header h1 {
     font-size: 19px;
     font-weight: 700;
@@ -394,6 +405,10 @@
   .bulk-table td.time-col { width: 100px; }
   .bulk-table td.memo-col { width: 90px; }
 
+  .bulk-table input.memo-custom {
+    color: #e2a39c;
+  }
+
   .bulk-notice {
     display: flex;
     align-items: center;
@@ -749,6 +764,7 @@ function App() {
 
   return (
     <div>
+      <a href="index.html" className="home-link">‹ Home</a>
       <div className="header">
         <h1><span className="drop">●</span> Urine Output Log</h1>
         <div className="sync-status">
@@ -872,7 +888,7 @@ function App() {
                   <tr>
                     <th></th>
                     <th>Time</th>
-                    <th>mL</th>
+                    <th>Amount (mL)</th>
                     <th>Memo</th>
                   </tr>
                 </thead>
@@ -907,6 +923,7 @@ function App() {
                         <td className="memo-col">
                           <input
                             type="text"
+                            className={row.memo && row.memo.trim() ? 'memo-custom' : ''}
                             placeholder="Normal"
                             value={row.memo}
                             disabled={bulkSaving}
@@ -947,6 +964,7 @@ function App() {
                         <td className="memo-col">
                           <input
                             type="text"
+                            className={row.memo && row.memo.trim() ? 'memo-custom' : ''}
                             placeholder="Normal"
                             value={row.memo}
                             disabled={bulkSaving}

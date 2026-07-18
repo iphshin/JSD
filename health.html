@@ -245,6 +245,20 @@
     cursor: pointer;
   }
 
+  .thumb-failed {
+    display: none;
+    width: 64px;
+    height: 64px;
+    border-radius: 8px;
+    border: 1px dashed var(--line);
+    background: #f0f0ee;
+    color: var(--ink-soft);
+    font-size: 10px;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+
   .thumb-remove {
     position: absolute;
     top: -6px;
@@ -604,10 +618,14 @@ function App() {
                             if (tries < 3) {
                               img.dataset.retries = tries + 1;
                               setTimeout(() => { img.src = url + '&r=' + Date.now(); }, 700 * (tries + 1));
+                            } else {
+                              img.style.display = 'none';
+                              img.nextElementSibling && (img.nextElementSibling.style.display = 'flex');
                             }
                           }}
                         />
-                        <button className="thumb-remove" onClick={() => handleRemoveImage(r.row, url)}>×</button>
+                        <div className="thumb-failed">Can't load</div>
+                        <button className="thumb-remove" title="Remove this photo" onClick={() => { if (window.confirm('Remove this photo from the record?')) handleRemoveImage(r.row, url); }}>×</button>
                       </div>
                     ))}
                   </div>

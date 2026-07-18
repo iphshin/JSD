@@ -231,9 +231,11 @@
   }
 
   .thumb-wrap {
-    position: relative;
     width: 64px;
-    height: 64px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
   }
 
   .thumb-wrap img {
@@ -260,18 +262,13 @@
   }
 
   .thumb-remove {
-    position: absolute;
-    top: -6px;
-    right: -6px;
-    background: var(--danger);
-    color: #fff;
+    background: none;
     border: none;
-    border-radius: 50%;
-    width: 18px;
-    height: 18px;
-    font-size: 11px;
-    line-height: 1;
+    color: var(--ink-soft);
+    font-size: 10px;
+    padding: 1px 4px;
     cursor: pointer;
+    text-decoration: underline;
   }
 
   .empty-state {
@@ -625,7 +622,7 @@ function App() {
                           }}
                         />
                         <div className="thumb-failed">Can't load</div>
-                        <button className="thumb-remove" title="Remove this photo" onClick={() => { if (window.confirm('Remove this photo from the record?')) handleRemoveImage(r.row, url); }}>×</button>
+                        <button className="thumb-remove" onClick={() => { if (window.confirm('Remove this photo from the record?')) handleRemoveImage(r.row, url); }}>Remove</button>
                       </div>
                     ))}
                   </div>

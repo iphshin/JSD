@@ -423,6 +423,7 @@ function App() {
   const [tab, setTab] = useState('add');
   const [expandedRows, setExpandedRows] = useState(() => new Set());
   const [bpPeriod, setBpPeriod] = useState('weekly');
+  const [bpPage, setBpPage] = useState(0);
 
   const [editingId, setEditingId] = useState(null);
   const [formDate, setFormDate] = useState(todayStr());
@@ -556,31 +557,32 @@ function App() {
   });
 
   // ---- BP Trends ----
-  let bpRows = rows.filter(r => r.sys !== '' && r.dia !== '' && !isNaN(Number(r.sys)) && !isNaN(Number(r.dia)));
-  if (bpPeriod === 'daily') {
-    const cutoff = new Date();
-    cutoff.setDate(cutoff.getDate() - 30);
-    const cutoffStr = `${cutoff.getFullYear()}-${pad(cutoff.getMonth() + 1)}-${pad(cutoff.getDate())}`;
-    bpRows = bpRows.filter(r => r.date >= cutoffStr);
-  }
+  const bpRows = rows.filter(r => r.sys !== '' && r.dia !== '' && !isNaN(Number(r.sys)) && !isNaN(Number(r.dia)));
   const bpKeyFn = bpPeriod === 'daily' ? dayLabel : bpPeriod === 'weekly' ? weekLabel : bpPeriod === 'monthly' ? monthLabel : yearLabel;
   const bpGroups = {};
   bpRows.forEach(r => {
     const key = bpKeyFn(r.date);
-    if (!bpGroups[key]) bpGroups[key] = { sys: [], dia: [] };
+    if (!bpGroups[key]) bpGroups[key] = { sys: [], dia: [], readings: [] };
     bpGroups[key].sys.push(Number(r.sys));
     bpGroups[key].dia.push(Number(r.dia));
+    bpGroups[key].readings.push({ time: r.time, sys: r.sys, dia: r.dia });
   });
   const bpSummary = Object.keys(bpGroups).sort((a, b) => b.localeCompare(a)).map(key => {
     const g = bpGroups[key];
     const avg = arr => Math.round(arr.reduce((s, v) => s + v, 0) / arr.length);
     return {
       key,
+      count: g.sys.length,
+      readings: g.readings.sort((a, b) => (a.time || '').localeCompare(b.time || '')),
       avgSys: avg(g.sys), avgDia: avg(g.dia),
       maxSys: Math.max(...g.sys), maxDia: Math.max(...g.dia),
       minSys: Math.min(...g.sys), minDia: Math.min(...g.dia),
     };
   });
+  const BP_PAGE_SIZE = 10;
+  const bpTotalPages = Math.max(1, Math.ceil(bpSummary.length / BP_PAGE_SIZE));
+  const bpPageClamped = Math.min(bpPage, bpTotalPages - 1);
+  const bpPageRows = bpSummary.slice(bpPageClamped * BP_PAGE_SIZE, bpPageClamped * BP_PAGE_SIZE + BP_PAGE_SIZE);
 
   // ---- HbA1C Log ----
   const hba1cRows = rows
@@ -761,34 +763,83 @@ function App() {
       <div className="card">
         <h2>Blood Pressure Trends</h2>
         <div className="period-tabs">
-          <button className={`period-btn ${bpPeriod === 'daily' ? 'active' : ''}`} onClick={() => setBpPeriod('daily')}>Daily</button>
-          <button className={`period-btn ${bpPeriod === 'weekly' ? 'active' : ''}`} onClick={() => setBpPeriod('weekly')}>Weekly</button>
-          <button className={`period-btn ${bpPeriod === 'monthly' ? 'active' : ''}`} onClick={() => setBpPeriod('monthly')}>Monthly</button>
-          <button className={`period-btn ${bpPeriod === 'yearly' ? 'active' : ''}`} onClick={() => setBpPeriod('yearly')}>Yearly</button>
+          <button className={`period-btn ${bpPeriod === 'daily' ? 'active' : ''}`} onClick={() => { setBpPeriod('daily'); setBpPage(0); }}>Daily</button>
+          <button className={`period-btn ${bpPeriod === 'weekly' ? 'active' : ''}`} onClick={() => { setBpPeriod('weekly'); setBpPage(0); }}>Weekly</button>
+          <button className={`period-btn ${bpPeriod === 'monthly' ? 'active' : ''}`} onClick={() => { setBpPeriod('monthly'); setBpPage(0); }}>Monthly</button>
+          <button className={`period-btn ${bpPeriod === 'yearly' ? 'active' : ''}`} onClick={() => { setBpPeriod('yearly'); setBpPage(0); }}>Yearly</button>
         </div>
         {bpSummary.length === 0 ? (
           <div className="empty-state">No BP records yet.</div>
-        ) : (
-          <table className="trend-table">
-            <thead>
-              <tr>
-                <th>{bpPeriod === 'daily' ? 'Date' : bpPeriod === 'weekly' ? 'Week of' : bpPeriod === 'monthly' ? 'Month' : 'Year'}</th>
-                <th style={{textAlign: 'right'}}>Avg</th>
-                <th style={{textAlign: 'right'}}>Max</th>
-                <th style={{textAlign: 'right'}}>Min</th>
-              </tr>
-            </thead>
-            <tbody>
-              {bpSummary.map(s => (
-                <tr key={s.key}>
-                  <td>{s.key}</td>
-                  <td className="num">{s.avgSys}/{s.avgDia}</td>
-                  <td className="num">{s.maxSys}/{s.maxDia}</td>
-                  <td className="num">{s.minSys}/{s.minDia}</td>
+        ) : bpPeriod === 'daily' ? (
+          <React.Fragment>
+            <table className="trend-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Readings</th>
+                  <th style={{textAlign: 'right'}}>Avg</th>
+                  <th style={{textAlign: 'right'}}>Max</th>
+                  <th style={{textAlign: 'right'}}>Min</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {bpPageRows.map(s => (
+                  <tr key={s.key}>
+                    <td style={{verticalAlign: 'top'}}>{s.key}</td>
+                    <td>
+                      {s.readings.map((r, i) => (
+                        <div key={i} style={{whiteSpace: 'nowrap'}}>
+                          {r.time ? `${r.time} ` : ''}{r.sys}/{r.dia}
+                        </div>
+                      ))}
+                    </td>
+                    <td className="num" style={{verticalAlign: 'top'}}>{s.count > 1 ? `${s.avgSys}/${s.avgDia}` : '-'}</td>
+                    <td className="num" style={{verticalAlign: 'top'}}>{s.count > 1 ? `${s.maxSys}/${s.maxDia}` : '-'}</td>
+                    <td className="num" style={{verticalAlign: 'top'}}>{s.count > 1 ? `${s.minSys}/${s.minDia}` : '-'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <div className="btn-row" style={{marginTop: '12px'}}>
+              <button className="ghost" disabled={bpPageClamped === 0} onClick={() => setBpPage(p => Math.max(0, p - 1))}>‹ Prev</button>
+              <div style={{flex: 1, textAlign: 'center', fontSize: '12px', color: 'var(--ink-soft)', alignSelf: 'center'}}>
+                Page {bpPageClamped + 1} of {bpTotalPages}
+              </div>
+              <button className="ghost" disabled={bpPageClamped >= bpTotalPages - 1} onClick={() => setBpPage(p => p + 1)}>Next ›</button>
+            </div>
+          </React.Fragment>
+        ) : (
+          <React.Fragment>
+            <table className="trend-table">
+              <thead>
+                <tr>
+                  <th>{bpPeriod === 'weekly' ? 'Week of' : bpPeriod === 'monthly' ? 'Month' : 'Year'}</th>
+                  <th style={{textAlign: 'right'}}>Avg</th>
+                  <th style={{textAlign: 'right'}}>Max</th>
+                  <th style={{textAlign: 'right'}}>Min</th>
+                </tr>
+              </thead>
+              <tbody>
+                {bpPageRows.map(s => (
+                  <tr key={s.key}>
+                    <td>{s.key}</td>
+                    <td className="num">{s.avgSys}/{s.avgDia}</td>
+                    <td className="num">{s.maxSys}/{s.maxDia}</td>
+                    <td className="num">{s.minSys}/{s.minDia}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {bpTotalPages > 1 && (
+              <div className="btn-row" style={{marginTop: '12px'}}>
+                <button className="ghost" disabled={bpPageClamped === 0} onClick={() => setBpPage(p => Math.max(0, p - 1))}>‹ Prev</button>
+                <div style={{flex: 1, textAlign: 'center', fontSize: '12px', color: 'var(--ink-soft)', alignSelf: 'center'}}>
+                  Page {bpPageClamped + 1} of {bpTotalPages}
+                </div>
+                <button className="ghost" disabled={bpPageClamped >= bpTotalPages - 1} onClick={() => setBpPage(p => p + 1)}>Next ›</button>
+              </div>
+            )}
+          </React.Fragment>
         )}
       </div>
       )}

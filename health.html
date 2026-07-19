@@ -402,6 +402,7 @@ async function fetchAllRows() {
   return data.rows;
 }
 
+function dayLabel(dateStr) { return dateStr; }
 function weekLabel(dateStr) {
   const d = new Date(dateStr + 'T00:00:00');
   const day = (d.getDay() + 6) % 7; // Monday=0
@@ -555,8 +556,14 @@ function App() {
   });
 
   // ---- BP Trends ----
-  const bpRows = rows.filter(r => r.sys !== '' && r.dia !== '' && !isNaN(Number(r.sys)) && !isNaN(Number(r.dia)));
-  const bpKeyFn = bpPeriod === 'weekly' ? weekLabel : bpPeriod === 'monthly' ? monthLabel : yearLabel;
+  let bpRows = rows.filter(r => r.sys !== '' && r.dia !== '' && !isNaN(Number(r.sys)) && !isNaN(Number(r.dia)));
+  if (bpPeriod === 'daily') {
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - 30);
+    const cutoffStr = `${cutoff.getFullYear()}-${pad(cutoff.getMonth() + 1)}-${pad(cutoff.getDate())}`;
+    bpRows = bpRows.filter(r => r.date >= cutoffStr);
+  }
+  const bpKeyFn = bpPeriod === 'daily' ? dayLabel : bpPeriod === 'weekly' ? weekLabel : bpPeriod === 'monthly' ? monthLabel : yearLabel;
   const bpGroups = {};
   bpRows.forEach(r => {
     const key = bpKeyFn(r.date);
@@ -754,6 +761,7 @@ function App() {
       <div className="card">
         <h2>Blood Pressure Trends</h2>
         <div className="period-tabs">
+          <button className={`period-btn ${bpPeriod === 'daily' ? 'active' : ''}`} onClick={() => setBpPeriod('daily')}>Daily</button>
           <button className={`period-btn ${bpPeriod === 'weekly' ? 'active' : ''}`} onClick={() => setBpPeriod('weekly')}>Weekly</button>
           <button className={`period-btn ${bpPeriod === 'monthly' ? 'active' : ''}`} onClick={() => setBpPeriod('monthly')}>Monthly</button>
           <button className={`period-btn ${bpPeriod === 'yearly' ? 'active' : ''}`} onClick={() => setBpPeriod('yearly')}>Yearly</button>
@@ -764,7 +772,7 @@ function App() {
           <table className="trend-table">
             <thead>
               <tr>
-                <th>{bpPeriod === 'weekly' ? 'Week of' : bpPeriod === 'monthly' ? 'Month' : 'Year'}</th>
+                <th>{bpPeriod === 'daily' ? 'Date' : bpPeriod === 'weekly' ? 'Week of' : bpPeriod === 'monthly' ? 'Month' : 'Year'}</th>
                 <th style={{textAlign: 'right'}}>Avg</th>
                 <th style={{textAlign: 'right'}}>Max</th>
                 <th style={{textAlign: 'right'}}>Min</th>

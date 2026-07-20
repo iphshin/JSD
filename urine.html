@@ -570,7 +570,6 @@ function App() {
 
   // report state
   const [reportDate, setReportDate] = useState(todayStr());
-  const [weekRefDate, setWeekRefDate] = useState(todayStr());
 
   // bulk entry state
   function makeBlankRows() {
@@ -752,8 +751,8 @@ function App() {
     .sort((a, b) => clinicalMinutes(a.time) - clinicalMinutes(b.time));
   const dailyTotal = dailyEntries.reduce((s, e) => s + e.amount, 0);
 
-  const weekDates = getWeekDates(weekRefDate);
-  const weekRows = weekDates.map(d => {
+  const currentWeekDates = getWeekDates(todayStr());
+  const currentWeekRows = currentWeekDates.map(d => {
     const dayEntries = entries.filter(e => clinicalDateOf(e) === d);
     return {
       date: d,
@@ -761,10 +760,28 @@ function App() {
       total: dayEntries.reduce((s, e) => s + e.amount, 0),
     };
   });
-  const weekTotal = weekRows.reduce((s, r) => s + r.total, 0);
-  const weekFrequency = weekRows.reduce((s, r) => s + r.count, 0);
-  const weekFreqAvg = weekFrequency / 7;
-  const weekAvg = weekTotal / 7;
+  const currentWeekTotal = currentWeekRows.reduce((s, r) => s + r.total, 0);
+  const currentWeekFrequency = currentWeekRows.reduce((s, r) => s + r.count, 0);
+  const currentWeekFreqAvg = currentWeekFrequency / 7;
+  const currentWeekAvgML = currentWeekTotal / 7;
+
+  const pastWeeks = [];
+  for (let i = 1; i <= 6; i++) {
+    const weekStart = addDays(currentWeekDates[0], -7 * i);
+    const dates = getWeekDates(weekStart);
+    const dayRows = dates.map(d => {
+      const dayEntries = entries.filter(e => clinicalDateOf(e) === d);
+      return { count: dayEntries.length, total: dayEntries.reduce((s, e) => s + e.amount, 0) };
+    });
+    const total = dayRows.reduce((s, r) => s + r.total, 0);
+    const frequency = dayRows.reduce((s, r) => s + r.count, 0);
+    pastWeeks.push({
+      weekStart,
+      weekEnd: dates[6],
+      avgFreq: frequency / 7,
+      avgML: total / 7,
+    });
+  }
 
   if (!loaded) {
     return <div className="loading">시트에서 기록을 불러오는 중…</div>;
@@ -1041,38 +1058,35 @@ function App() {
       {tab === 'weekly' && (
         <div>
           <div className="card">
-            <h2>Select Any Day in Week</h2>
-            <div className="date-nav">
-              <input type="date" value={weekRefDate} onChange={e => setWeekRefDate(e.target.value)} />
-            </div>
+            <h2>This Week</h2>
             <div className="stat-grid">
               <div className="stat-box">
-                <div className="num">{weekFreqAvg.toFixed(1)}</div>
-                <div className="lbl">Daily AVG</div>
+                <div className="num">{currentWeekFreqAvg.toFixed(1)}</div>
+                <div className="lbl">Daily AVG Frequency</div>
               </div>
               <div className="stat-box">
-                <div className="num">{weekAvg.toFixed(0)}</div>
-                <div className="lbl">Daily Avg mL</div>
+                <div className="num">{currentWeekAvgML.toFixed(0)}</div>
+                <div className="lbl">Daily AVG mL</div>
               </div>
             </div>
           </div>
 
           <div className="card">
-            <h2>Day by Day</h2>
+            <h2>Past 6 Weeks</h2>
             <table className="week-table">
               <thead>
                 <tr>
-                  <th>Date</th>
-                  <th>Frequency</th>
-                  <th style={{textAlign: 'right'}}>Total mL</th>
+                  <th>Week</th>
+                  <th style={{textAlign: 'right'}}>AVG Frequency</th>
+                  <th style={{textAlign: 'right'}}>Daily AVG mL</th>
                 </tr>
               </thead>
               <tbody>
-                {weekRows.map(r => (
-                  <tr key={r.date} className={r.date === todayStr() ? 'today' : ''}>
-                    <td>{formatDateLabel(r.date)}</td>
-                    <td>{r.count}</td>
-                    <td className="amt">{r.total}</td>
+                {pastWeeks.map(w => (
+                  <tr key={w.weekStart}>
+                    <td>{formatDateLabel(w.weekStart)} – {formatDateLabel(w.weekEnd)}</td>
+                    <td className="amt">{w.avgFreq.toFixed(1)}</td>
+                    <td className="amt">{w.avgML.toFixed(0)}</td>
                   </tr>
                 ))}
               </tbody>

@@ -1,0 +1,1107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Urine Log</title>
+</head>
+<body>
+<div id="app-root"></div>
+<style>
+  :root {
+    --bg: #f6f7f5;
+    --surface: #ffffff;
+    --ink: #1e2a2b;
+    --ink-soft: #5b6866;
+    --line: #dfe4e0;
+    --accent: #2f7a73;
+    --accent-soft: #e4f0ee;
+    --amber: #b8763a;
+    --danger: #b1493a;
+    --danger-soft: #f7e9e6;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  #app-root {
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100%;
+    padding: 20px 16px 40px;
+    max-width: 560px;
+    margin: 0 auto;
+  }
+
+  .header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 18px;
+  }
+
+  .home-link {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent);
+    text-decoration: none;
+    margin-bottom: 10px;
+  }
+
+  .home-link:active { opacity: 0.7; }
+
+  .header h1 {
+    font-size: 19px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin: 0;
+  }
+
+  .header .drop {
+    color: var(--accent);
+  }
+
+  .sync-status {
+    font-size: 11px;
+    color: var(--ink-soft);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .sync-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  .sync-dot.error { background: var(--danger); }
+  .sync-dot.busy { background: var(--amber); }
+
+  .tabs {
+    display: flex;
+    gap: 6px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 4px;
+    margin-bottom: 18px;
+  }
+
+  .tab-btn {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 9px 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink-soft);
+    border-radius: 7px;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+
+  .tab-btn.active {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 18px;
+    margin-bottom: 16px;
+  }
+
+  .card h2 {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ink-soft);
+    margin: 0 0 14px 0;
+    font-weight: 700;
+  }
+
+  .field-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .field {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .field label {
+    font-size: 12px;
+    color: var(--ink-soft);
+    font-weight: 600;
+  }
+
+  input[type="date"],
+  input[type="time"],
+  input[type="number"],
+  input[type="text"] {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 9px 10px;
+    font-size: 15px;
+    background: #fbfbfa;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+    width: 100%;
+  }
+
+  input:focus {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+  }
+
+  input:disabled { opacity: 0.6; }
+
+  .amount-field input {
+    font-family: "SF Mono", "Menlo", monospace;
+    font-size: 18px;
+    font-weight: 700;
+  }
+
+  .btn-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+  }
+
+  button.primary {
+    flex: 1;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 9px;
+    padding: 11px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  button.primary:active { opacity: 0.85; }
+  button.primary:disabled { opacity: 0.5; cursor: default; }
+
+  button.ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    padding: 11px 14px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  button.ghost:disabled { opacity: 0.5; cursor: default; }
+
+  .entry-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .entry-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: #fbfbfa;
+    gap: 8px;
+  }
+
+  .entry-time {
+    font-size: 13px;
+    color: var(--ink-soft);
+    min-width: 44px;
+    flex-shrink: 0;
+  }
+
+  .entry-memo {
+    font-size: 12px;
+    color: var(--ink);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .entry-memo.faint {
+    color: #e2a39c;
+  }
+
+  .entry-amount {
+    font-family: "SF Mono", "Menlo", monospace;
+    font-weight: 700;
+    font-size: 15px;
+    text-align: right;
+    padding-right: 4px;
+    flex-shrink: 0;
+    min-width: 64px;
+  }
+
+  .icon-btn {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 13px;
+    padding: 5px 8px;
+    border-radius: 6px;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+
+  .icon-btn.edit { color: var(--accent); }
+  .icon-btn.delete { color: var(--danger); }
+  .icon-btn:disabled { opacity: 0.5; cursor: default; }
+
+  .empty-state {
+    text-align: center;
+    color: var(--ink-soft);
+    font-size: 13px;
+    padding: 24px 0;
+  }
+
+  .stat-grid {
+    display: flex;
+    gap: 12px;
+  }
+
+  .stat-box {
+    flex: 1;
+    background: var(--accent-soft);
+    border-radius: 10px;
+    padding: 14px;
+    text-align: center;
+  }
+
+  .stat-box .num {
+    font-family: "SF Mono", "Menlo", monospace;
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--accent);
+  }
+
+  .stat-box .lbl {
+    font-size: 11px;
+    color: var(--ink-soft);
+    margin-top: 4px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .date-nav {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .date-nav input[type="date"] { flex: 1; }
+
+  .week-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  .week-table th {
+    text-align: left;
+    color: var(--ink-soft);
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 6px 4px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .week-table td {
+    padding: 8px 4px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .week-table td.amt {
+    font-family: "SF Mono", "Menlo", monospace;
+    font-weight: 700;
+    text-align: right;
+  }
+
+  .week-table tr.today td { color: var(--accent); font-weight: 700; }
+
+  .banner {
+    font-size: 12px;
+    color: var(--accent);
+    background: var(--accent-soft);
+    border-radius: 8px;
+    padding: 8px 10px;
+    margin-bottom: 14px;
+    display: none;
+  }
+
+  .banner.show { display: block; }
+  .banner.error { color: var(--danger); background: var(--danger-soft); }
+
+  .loading {
+    text-align: center;
+    color: var(--ink-soft);
+    padding: 30px 0;
+    font-size: 13px;
+  }
+
+  .bulk-table-wrap {
+    max-height: 480px;
+    overflow-y: auto;
+    overflow-x: auto;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+  }
+
+  .bulk-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .bulk-table th {
+    position: sticky;
+    top: 0;
+    background: var(--surface);
+    text-align: left;
+    color: var(--ink-soft);
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 8px 6px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .bulk-table td {
+    padding: 5px 6px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .bulk-table td.idx {
+    color: var(--ink-soft);
+    font-size: 12px;
+    width: 22px;
+    text-align: center;
+  }
+
+  .bulk-table input[type="date"],
+  .bulk-table input[type="time"],
+  .bulk-table input[type="number"] {
+    padding: 6px 7px;
+    font-size: 13px;
+  }
+
+  .bulk-table td.amt-col { width: 90px; }
+  .bulk-table td.time-col { width: 100px; }
+  .bulk-table td.memo-col { width: 90px; }
+
+  .bulk-table input.memo-custom {
+    color: #e2a39c;
+  }
+
+  .bulk-notice {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    font-size: 13px;
+    color: var(--ink);
+    background: var(--accent-soft);
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-bottom: 14px;
+  }
+
+  .bulk-notice.replacing {
+    background: #fdf1e8;
+    color: var(--amber);
+  }
+
+  .bulk-notice button {
+    flex-shrink: 0;
+  }
+
+  .bulk-table tr.block-header td {
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-weight: 700;
+    font-size: 12px;
+    padding: 7px 8px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .bulk-table input.invalid {
+    border-color: var(--danger);
+    background: var(--danger-soft);
+  }
+</style>
+
+<script type="text/babel" data-presets="react">
+const { useState, useEffect, useCallback } = React;
+
+// ---- Google Sheet connection ----
+// Apps Script web app deployed on the "david urine" sheet, tab "sheet1"
+// Columns: Date (yyyy-MM-dd HH:mm) | Amount (mL) | Memo
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwwZBvt_Bo20rPC9WPcR6p3hZfI-H6Q0GGP2uBBzUI/dev';
+
+function pad(n) { return String(n).padStart(2, '0'); }
+
+function todayStr() {
+  const d = new Date();
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+
+function nowTimeStr() {
+  const d = new Date();
+  return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+// Monday-start week containing given yyyy-mm-dd string
+function getWeekDates(dateStr) {
+  const d = new Date(dateStr + 'T00:00:00');
+  const day = d.getDay(); // 0 Sun .. 6 Sat
+  const diffToMonday = (day === 0 ? -6 : 1 - day);
+  const monday = new Date(d);
+  monday.setDate(d.getDate() + diffToMonday);
+  const dates = [];
+  for (let i = 0; i < 7; i++) {
+    const dt = new Date(monday);
+    dt.setDate(monday.getDate() + i);
+    dates.push(`${dt.getFullYear()}-${pad(dt.getMonth() + 1)}-${pad(dt.getDate())}`);
+  }
+  return dates;
+}
+
+function formatDateLabel(dateStr) {
+  const d = new Date(dateStr + 'T00:00:00');
+  return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', weekday: 'short' });
+}
+
+function addDays(dateStr, delta) {
+  const d = new Date(dateStr + 'T00:00:00');
+  d.setDate(d.getDate() + delta);
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+
+// Clinical day runs 05:00 -> next day 04:59.
+function clinicalDateOf(entry) {
+  return entry.time < '05:00' ? addDays(entry.date, -1) : entry.date;
+}
+
+function clinicalMinutes(time) {
+  const [h, m] = time.split(':').map(Number);
+  const total = h * 60 + m;
+  return (total - 300 + 1440) % 1440;
+}
+
+// "yyyy-MM-dd HH:mm" (sheet cell) <-> {date, time}
+function splitSheetDate(str) {
+  const s = String(str).trim();
+  const [d, t] = s.split(/\s+/);
+  return { date: d || todayStr(), time: (t || '00:00').slice(0, 5) };
+}
+
+function joinSheetDate(date, time) {
+  return `${date} ${time}`;
+}
+
+// ---- Apps Script fetch helpers ----
+async function fetchAllEntries() {
+  const res = await fetch(APPS_SCRIPT_URL, {
+    method: 'POST',
+    cache: 'no-store',
+    body: JSON.stringify({ action: 'list' }),
+  });
+  if (!res.ok) throw new Error('load failed (' + res.status + ')');
+  const data = await res.json();
+  if (!data.rows) {
+    throw new Error('rows 없음: ' + JSON.stringify(data).slice(0, 200));
+  }
+  return (data.rows || []).map(r => {
+    const { date, time } = splitSheetDate(r.date);
+    return { id: r.row, date, time, amount: Number(r.amount), memo: r.memo || '' };
+  });
+}
+
+async function postAction(payload) {
+  const res = await fetch(APPS_SCRIPT_URL, {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) throw new Error('request failed');
+  const data = await res.json();
+  if (!data.ok) throw new Error(data.error || 'request failed');
+  return data;
+}
+
+function App() {
+  const [loaded, setLoaded] = useState(false);
+  const [entries, setEntries] = useState([]);
+  const [tab, setTab] = useState('add');
+  const [banner, setBanner] = useState('');
+  const [bannerErr, setBannerErr] = useState(false);
+  const [syncState, setSyncState] = useState('idle'); // idle | busy | error
+
+  // add/edit form state
+  const [editingId, setEditingId] = useState(null);
+  const [formDate, setFormDate] = useState(todayStr());
+  const [formTime, setFormTime] = useState(nowTimeStr());
+  const [formAmount, setFormAmount] = useState('');
+  const [formMemo, setFormMemo] = useState('');
+  const [saving, setSaving] = useState(false);
+
+  // report state
+  const [reportDate, setReportDate] = useState(todayStr());
+
+  // bulk entry state
+  function makeBlankRows() {
+    return Array.from({ length: 20 }, () => ({ time: '', amount: '', memo: '' }));
+  }
+  const [bulkDate, setBulkDate] = useState(todayStr());
+  const [bulkRows, setBulkRows] = useState(makeBlankRows());
+  const [replacingDate, setReplacingDate] = useState(null);
+  const [bulkSaving, setBulkSaving] = useState(false);
+
+  function showBanner(msg, isErr, ms) {
+    setBanner(msg);
+    setBannerErr(!!isErr);
+    setTimeout(() => setBanner(''), ms || 2500);
+  }
+
+  const reload = useCallback(async () => {
+    setSyncState('busy');
+    try {
+      const list = await fetchAllEntries();
+      setEntries(list);
+      setSyncState('idle');
+    } catch (e) {
+      setSyncState('error');
+      showBanner('불러오기 오류: ' + (e && e.message ? e.message : String(e)), true, 999999);
+    }
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      await reload();
+      setLoaded(true);
+    })();
+  }, [reload]);
+
+  function handleBulkDateChange(newDate) {
+    setBulkDate(newDate);
+    setBulkRows(makeBlankRows());
+    setReplacingDate(null);
+  }
+
+  function updateBulkRow(index, field, value) {
+    setBulkRows(rows => rows.map((r, i) => (i === index ? { ...r, [field]: value } : r)));
+  }
+
+  function loadExistingForEditing() {
+    const nextDateStr = addDays(bulkDate, 1);
+    const block1 = entries
+      .filter(e => e.date === bulkDate && e.time >= '05:00')
+      .sort((a, b) => a.time.localeCompare(b.time));
+    const block2 = entries
+      .filter(e => e.date === nextDateStr && e.time <= '04:59')
+      .sort((a, b) => a.time.localeCompare(b.time));
+    const rows = makeBlankRows();
+    block1.forEach((e, i) => { if (i < 10) rows[i] = { time: e.time, amount: String(e.amount), memo: e.memo === 'Normal' ? '' : (e.memo || '') }; });
+    block2.forEach((e, i) => { if (i < 10) rows[10 + i] = { time: e.time, amount: String(e.amount), memo: e.memo === 'Normal' ? '' : (e.memo || '') }; });
+    setBulkRows(rows);
+    setReplacingDate(bulkDate);
+  }
+
+  function cancelReplacing() {
+    setBulkRows(makeBlankRows());
+    setReplacingDate(null);
+  }
+
+  async function handleBulkSave() {
+    const nextDateStr = addDays(bulkDate, 1);
+    const invalidRows = [];
+    const valid = [];
+
+    bulkRows.forEach((r, i) => {
+      if (!r.time && r.amount === '') return;
+      const amt = parseFloat(r.amount);
+      const timeOk = i < 10 ? r.time >= '05:00' : r.time <= '04:59';
+      if (!r.time || r.amount === '' || isNaN(amt) || amt <= 0 || !timeOk) {
+        invalidRows.push(i + 1);
+        return;
+      }
+      valid.push({ date: joinSheetDate(i < 10 ? bulkDate : nextDateStr, r.time), amount: amt, memo: (r.memo && r.memo.trim()) ? r.memo.trim() : 'Normal' });
+    });
+
+    if (valid.length === 0 && invalidRows.length === 0) {
+      showBanner('한 줄 이상 유효하게 입력해주세요.', true, 2000);
+      return;
+    }
+    if (invalidRows.length > 0 && valid.length === 0) {
+      showBanner(`${invalidRows.join(', ')}번 행: 1~10행은 05:00 이후, 11~20행은 04:59 이전 시간이어야 합니다.`, true, 3500);
+      return;
+    }
+
+    setBulkSaving(true);
+    try {
+      if (replacingDate === bulkDate) {
+        const idsToDelete = entries.filter(e => clinicalDateOf(e) === bulkDate).map(e => e.id);
+        if (idsToDelete.length > 0) {
+          await postAction({ action: 'deleteRows', rows: idsToDelete });
+        }
+      }
+      if (valid.length > 0) {
+        await postAction({ action: 'bulkAppend', rows: valid });
+      }
+      await reload();
+      setBulkRows(makeBlankRows());
+      setReplacingDate(null);
+      let msg = `${valid.length}건 저장 완료 (${bulkDate}).`;
+      if (invalidRows.length > 0) msg += ` ${invalidRows.join(', ')}번 행은 시간 범위를 벗어나 건너뛰었습니다.`;
+      showBanner(msg, false, 3500);
+    } catch (e) {
+      showBanner('저장 중 오류가 발생했습니다. 다시 시도해주세요.', true, 3000);
+    } finally {
+      setBulkSaving(false);
+    }
+  }
+
+  const existingForBulkDate = entries
+    .filter(e => clinicalDateOf(e) === bulkDate)
+    .sort((a, b) => clinicalMinutes(a.time) - clinicalMinutes(b.time));
+
+  function resetForm() {
+    setEditingId(null);
+    setFormDate(todayStr());
+    setFormTime(nowTimeStr());
+    setFormAmount('');
+    setFormMemo('');
+  }
+
+  async function handleSave() {
+    const amt = parseFloat(formAmount);
+    if (!formDate || !formTime || isNaN(amt) || amt <= 0) {
+      showBanner('mL 단위의 올바른 값을 입력해주세요.', true, 2000);
+      return;
+    }
+    setSaving(true);
+    const memoToSave = formMemo.trim() ? formMemo.trim() : 'Normal';
+    try {
+      if (editingId) {
+        await postAction({ action: 'update', row: editingId, date: joinSheetDate(formDate, formTime), amount: amt, memo: memoToSave });
+        showBanner('기록이 수정되었습니다.', false, 1800);
+      } else {
+        await postAction({ action: 'append', date: joinSheetDate(formDate, formTime), amount: amt, memo: memoToSave });
+        showBanner('기록이 추가되었습니다.', false, 1800);
+      }
+      await reload();
+      resetForm();
+    } catch (e) {
+      showBanner('저장 중 오류가 발생했습니다.', true, 2500);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  function handleEdit(entry) {
+    setEditingId(entry.id);
+    setFormDate(entry.date);
+    setFormTime(entry.time);
+    setFormAmount(String(entry.amount));
+    setFormMemo(entry.memo && entry.memo !== 'Normal' ? entry.memo : '');
+    setTab('add');
+  }
+
+  async function handleDelete(id) {
+    setSyncState('busy');
+    try {
+      await postAction({ action: 'delete', row: id });
+      await reload();
+      showBanner('삭제되었습니다.', false, 1500);
+    } catch (e) {
+      setSyncState('error');
+      showBanner('삭제 중 오류가 발생했습니다.', true, 2500);
+    }
+  }
+
+  const todaysEntries = entries
+    .filter(e => e.date === formDate)
+    .sort((a, b) => a.time.localeCompare(b.time));
+
+  const dailyEntries = entries
+    .filter(e => clinicalDateOf(e) === reportDate)
+    .sort((a, b) => clinicalMinutes(a.time) - clinicalMinutes(b.time));
+  const dailyTotal = dailyEntries.reduce((s, e) => s + e.amount, 0);
+
+  const currentWeekDates = getWeekDates(todayStr());
+  const currentWeekRows = currentWeekDates.map(d => {
+    const dayEntries = entries.filter(e => clinicalDateOf(e) === d);
+    return {
+      date: d,
+      count: dayEntries.length,
+      total: dayEntries.reduce((s, e) => s + e.amount, 0),
+    };
+  });
+  const currentWeekTotal = currentWeekRows.reduce((s, r) => s + r.total, 0);
+  const currentWeekFrequency = currentWeekRows.reduce((s, r) => s + r.count, 0);
+  const currentWeekFreqAvg = currentWeekFrequency / 7;
+  const currentWeekAvgML = currentWeekTotal / 7;
+
+  const pastWeeks = [];
+  for (let i = 1; i <= 6; i++) {
+    const weekStart = addDays(currentWeekDates[0], -7 * i);
+    const dates = getWeekDates(weekStart);
+    const dayRows = dates.map(d => {
+      const dayEntries = entries.filter(e => clinicalDateOf(e) === d);
+      return { count: dayEntries.length, total: dayEntries.reduce((s, e) => s + e.amount, 0) };
+    });
+    const total = dayRows.reduce((s, r) => s + r.total, 0);
+    const frequency = dayRows.reduce((s, r) => s + r.count, 0);
+    pastWeeks.push({
+      weekStart,
+      weekEnd: dates[6],
+      avgFreq: frequency / 7,
+      avgML: total / 7,
+    });
+  }
+
+  if (!loaded) {
+    return <div className="loading">시트에서 기록을 불러오는 중…</div>;
+  }
+
+  return (
+    <div>
+      <a href="index.html" className="home-link">‹ Home</a>
+      <div className="header">
+        <h1><span className="drop">●</span> Urine Log</h1>
+        <div className="sync-status">
+          <span className={`sync-dot ${syncState === 'error' ? 'error' : syncState === 'busy' ? 'busy' : ''}`}></span>
+          {syncState === 'error' ? '연결 오류' : syncState === 'busy' ? '동기화 중' : '시트 연동됨'}
+        </div>
+      </div>
+
+      <div className="tabs">
+        <button className={`tab-btn ${tab === 'add' ? 'active' : ''}`} onClick={() => setTab('add')}>Add Entry</button>
+        <button className={`tab-btn ${tab === 'bulk' ? 'active' : ''}`} onClick={() => setTab('bulk')}>Bulk Entry</button>
+        <button className={`tab-btn ${tab === 'daily' ? 'active' : ''}`} onClick={() => setTab('daily')}>Daily Report</button>
+        <button className={`tab-btn ${tab === 'weekly' ? 'active' : ''}`} onClick={() => setTab('weekly')}>Weekly Report</button>
+      </div>
+
+      <div className={`banner ${banner ? 'show' : ''} ${bannerErr ? 'error' : ''}`}>{banner}</div>
+
+      {tab === 'add' && (
+        <div>
+          <div className="card">
+            <h2>{editingId ? 'Edit Entry' : 'New Entry'}</h2>
+            <div className="field-row">
+              <div className="field">
+                <label>Date</label>
+                <input type="date" value={formDate} disabled={saving} onChange={e => setFormDate(e.target.value)} />
+              </div>
+              <div className="field">
+                <label>Time</label>
+                <input type="time" value={formTime} disabled={saving} onChange={e => setFormTime(e.target.value)} />
+              </div>
+            </div>
+            <div className="field-row">
+              <div className="field amount-field">
+                <label>Amount (mL)</label>
+                <input
+                  type="number"
+                  min="0"
+                  step="1"
+                  placeholder="e.g. 250"
+                  value={formAmount}
+                  disabled={saving}
+                  onChange={e => setFormAmount(e.target.value)}
+                />
+              </div>
+            </div>
+            <div className="field-row">
+              <div className="field">
+                <label>Memo (default: Normal)</label>
+                <input
+                  type="text"
+                  placeholder="Normal"
+                  value={formMemo}
+                  disabled={saving}
+                  onChange={e => setFormMemo(e.target.value)}
+                />
+              </div>
+            </div>
+            <div className="btn-row">
+              <button className="primary" disabled={saving} onClick={handleSave}>
+                {saving ? '저장 중…' : (editingId ? 'Update Entry' : 'Save Entry')}
+              </button>
+              {editingId && <button className="ghost" disabled={saving} onClick={resetForm}>Cancel</button>}
+            </div>
+          </div>
+
+          <div className="card">
+            <h2>Entries on {formDate}</h2>
+            {todaysEntries.length === 0 ? (
+              <div className="empty-state">No entries yet for this date.</div>
+            ) : (
+              <div className="entry-list">
+                {todaysEntries.map(e => (
+                  <div className="entry-row" key={e.id}>
+                    <span className="entry-time">{e.time}</span>
+                    <span className="entry-amount">{e.amount} mL</span>
+                    <span className={`entry-memo ${(e.memo && e.memo !== 'Normal') ? 'faint' : ''}`}>{e.memo || 'Normal'}</span>
+                    <button className="icon-btn edit" onClick={() => handleEdit(e)}>Edit</button>
+                    <button className="icon-btn delete" onClick={() => handleDelete(e.id)}>Delete</button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {tab === 'bulk' && (
+        <div>
+          <div className="card">
+            <h2>Enter a Day's Records at Once</h2>
+
+            <div className="field" style={{ marginBottom: '14px' }}>
+              <label>Date (applies to all rows below)</label>
+              <input
+                type="date"
+                value={bulkDate}
+                disabled={bulkSaving}
+                onChange={e => handleBulkDateChange(e.target.value)}
+              />
+            </div>
+
+            {existingForBulkDate.length > 0 && (
+              <div className={`bulk-notice ${replacingDate === bulkDate ? 'replacing' : ''}`}>
+                {replacingDate === bulkDate ? (
+                  <React.Fragment>
+                    <span>Editing {existingForBulkDate.length} existing {existingForBulkDate.length === 1 ? 'entry' : 'entries'} for {bulkDate}. Saving will replace them with the grid below.</span>
+                    <button className="ghost" disabled={bulkSaving} onClick={cancelReplacing}>Cancel</button>
+                  </React.Fragment>
+                ) : (
+                  <React.Fragment>
+                    <span>{existingForBulkDate.length} {existingForBulkDate.length === 1 ? 'entry' : 'entries'} already recorded for {bulkDate}.</span>
+                    <button className="ghost" disabled={bulkSaving} onClick={loadExistingForEditing}>Load for Editing</button>
+                  </React.Fragment>
+                )}
+              </div>
+            )}
+
+            <div className="bulk-table-wrap">
+              <table className="bulk-table">
+                <thead>
+                  <tr>
+                    <th></th>
+                    <th>Time</th>
+                    <th>Amount (mL)</th>
+                    <th>Memo</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="block-header">
+                    <td colSpan="4">{formatDateLabel(bulkDate)} · from 05:00</td>
+                  </tr>
+                  {bulkRows.slice(0, 10).map((row, i) => {
+                    const invalid = row.time !== '' && row.time < '05:00';
+                    return (
+                      <tr key={i}>
+                        <td className="idx">{i + 1}</td>
+                        <td className="time-col">
+                          <input
+                            type="time"
+                            className={invalid ? 'invalid' : ''}
+                            value={row.time}
+                            disabled={bulkSaving}
+                            onChange={e => updateBulkRow(i, 'time', e.target.value)}
+                          />
+                        </td>
+                        <td className="amt-col">
+                          <input
+                            type="number"
+                            min="0"
+                            placeholder="mL"
+                            value={row.amount}
+                            disabled={bulkSaving}
+                            onChange={e => updateBulkRow(i, 'amount', e.target.value)}
+                          />
+                        </td>
+                        <td className="memo-col">
+                          <input
+                            type="text"
+                            className={row.memo && row.memo.trim() ? 'memo-custom' : ''}
+                            placeholder="Normal"
+                            value={row.memo}
+                            disabled={bulkSaving}
+                            onChange={e => updateBulkRow(i, 'memo', e.target.value)}
+                          />
+                        </td>
+                      </tr>
+                    );
+                  })}
+                  <tr className="block-header">
+                    <td colSpan="4">{formatDateLabel(addDays(bulkDate, 1))} · until 04:59</td>
+                  </tr>
+                  {bulkRows.slice(10, 20).map((row, i0) => {
+                    const i = i0 + 10;
+                    const invalid = row.time !== '' && row.time > '04:59';
+                    return (
+                      <tr key={i}>
+                        <td className="idx">{i + 1}</td>
+                        <td className="time-col">
+                          <input
+                            type="time"
+                            className={invalid ? 'invalid' : ''}
+                            value={row.time}
+                            disabled={bulkSaving}
+                            onChange={e => updateBulkRow(i, 'time', e.target.value)}
+                          />
+                        </td>
+                        <td className="amt-col">
+                          <input
+                            type="number"
+                            min="0"
+                            placeholder="mL"
+                            value={row.amount}
+                            disabled={bulkSaving}
+                            onChange={e => updateBulkRow(i, 'amount', e.target.value)}
+                          />
+                        </td>
+                        <td className="memo-col">
+                          <input
+                            type="text"
+                            className={row.memo && row.memo.trim() ? 'memo-custom' : ''}
+                            placeholder="Normal"
+                            value={row.memo}
+                            disabled={bulkSaving}
+                            onChange={e => updateBulkRow(i, 'memo', e.target.value)}
+                          />
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+            <div className="btn-row" style={{marginTop: '14px'}}>
+              <button className="primary" disabled={bulkSaving} onClick={handleBulkSave}>
+                {bulkSaving ? '저장 중…' : (replacingDate === bulkDate ? 'Save & Replace' : 'Save All Filled Rows')}
+              </button>
+              <button className="ghost" disabled={bulkSaving} onClick={() => setBulkRows(makeBlankRows())}>Clear</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {tab === 'daily' && (
+        <div>
+          <div className="card">
+            <h2>Select Date</h2>
+            <div className="date-nav">
+              <input type="date" value={reportDate} onChange={e => setReportDate(e.target.value)} />
+            </div>
+            <div style={{fontSize: '12px', color: 'var(--ink-soft)', marginBottom: '12px', marginTop: '-6px'}}>
+              Showing {reportDate} 05:00 through {addDays(reportDate, 1)} 04:59
+            </div>
+            <div className="stat-grid">
+              <div className="stat-box">
+                <div className="num">{dailyEntries.length}</div>
+                <div className="lbl">Frequency</div>
+              </div>
+              <div className="stat-box">
+                <div className="num">{dailyTotal}</div>
+                <div className="lbl">Total mL</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="card">
+            <h2>Entries</h2>
+            {dailyEntries.length === 0 ? (
+              <div className="empty-state">No entries recorded for this date.</div>
+            ) : (
+              <div className="entry-list">
+                {dailyEntries.map(e => (
+                  <div className="entry-row" key={e.id}>
+                    <span className="entry-time">{e.date !== reportDate ? `${e.time} (+1d)` : e.time}</span>
+                    <span className="entry-amount">{e.amount} mL</span>
+                    <span className={`entry-memo ${(e.memo && e.memo !== 'Normal') ? 'faint' : ''}`}>{e.memo || 'Normal'}</span>
+                    <button className="icon-btn edit" onClick={() => handleEdit(e)}>Edit</button>
+                    <button className="icon-btn delete" onClick={() => handleDelete(e.id)}>Delete</button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {tab === 'weekly' && (
+        <div>
+          <div className="card">
+            <h2>This Week</h2>
+            <div className="stat-grid">
+              <div className="stat-box">
+                <div className="num">{currentWeekFreqAvg.toFixed(1)}</div>
+                <div className="lbl">Daily AVG Frequency</div>
+              </div>
+              <div className="stat-box">
+                <div className="num">{currentWeekAvgML.toFixed(0)}</div>
+                <div className="lbl">Daily AVG mL</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="card">
+            <h2>Past 6 Weeks</h2>
+            <table className="week-table">
+              <thead>
+                <tr>
+                  <th>Week</th>
+                  <th style={{textAlign: 'right'}}>AVG Frequency</th>
+                  <th style={{textAlign: 'right'}}>Daily AVG mL</th>
+                </tr>
+              </thead>
+              <tbody>
+                {pastWeeks.map(w => (
+                  <tr key={w.weekStart}>
+                    <td>{formatDateLabel(w.weekStart)} – {formatDateLabel(w.weekEnd)}</td>
+                    <td className="amt">{w.avgFreq.toFixed(1)}</td>
+                    <td className="amt">{w.avgML.toFixed(0)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('app-root')).render(<App />);
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+</body>
+</html>
